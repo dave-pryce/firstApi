@@ -36,7 +36,6 @@ var getIngredient = function (ingredientId) {
 }
 
 
-
 // Get all ingredients
 app.get('/ingredients', function (request,response) {
      response.send(ingredients);   
@@ -44,17 +43,22 @@ app.get('/ingredients', function (request,response) {
 
 
 // Get single ingrediant - using getIngredient function
-app.get('/ingredients/:ingredientId', function (request, response) { 
+app.get('/ingredients/:ingredientId', function (request, response) {    
     var x = getIngredient(request.params.ingredientId);
-    response.send(ingredients[x]);
-});
+    
+    
+    if ( x >=0) { response.send(ingredients[x]);}
+    else { response.status(500).send({error: "Not a valid ingredient"}); }
+   
+    });
 
 
+// Create new ingredient
 app.post('/ingredients', function (request, response) {
-   var ingredient = request.body; 
-    //console.log(request.body);
-    if (!ingredient || ingredient.text === "") {
-        response.status(500).send({error: "Your ingredient must have text"});
+  var ingredient = request.body; 
+     // Check for message body raise error   
+    if ( !ingredient || ingredient.text === "" ) {
+        response.status(500).send({error: "No body, you must send a new ingredient"})
     } else {
         ingredients.push(ingredient);
         response.status(200).send(ingredients);
@@ -62,6 +66,7 @@ app.post('/ingredients', function (request, response) {
 });
 
 
+// update existing ingredieint
 app.put('/ingredients/:ingredientId', function (request, response) {   
  if (request.body.text === "") {
         response.status(500).send({error: "Your ingredient must have text"});
@@ -73,6 +78,18 @@ app.put('/ingredients/:ingredientId', function (request, response) {
 }
 });
 
+// Delete ingredient
+app.delete('/ingredients/:ingredientId', function (request, response) {     
+    var x = getIngredient(request.params.ingredientId);
+    
+    if (x >= 0) {
+    //console.log(x);
+    ingredients.splice(x, 1);
+    response.status(200).send(ingredients);}
+    else {
+        response.status(500).send({error: "Not a valid ingredient"});
+    }
+})
 
 
 app.listen(3000, function(){
